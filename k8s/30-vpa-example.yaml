@@ -1,0 +1,17 @@
+# Escala VERTICAL: o VPA ajusta requests/limits dos pods.
+# Requer o VPA instalado no cluster (https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler).
+# Não use VPA e HPA no mesmo recurso (CPU/memória) ao mesmo tempo: por isso aqui o alvo é o inventory-service.
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: inventory-service
+  namespace: demo
+spec:
+  targetRef: { apiVersion: apps/v1, kind: Deployment, name: inventory-service }
+  updatePolicy:
+    updateMode: "Off"     # "Off" só recomenda; "Auto" recria pods com novos valores
+  resourcePolicy:
+    containerPolicies:
+      - containerName: app
+        minAllowed: { cpu: 100m, memory: 256Mi }
+        maxAllowed: { cpu: "2", memory: 1Gi }
